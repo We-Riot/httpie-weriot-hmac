@@ -36,7 +36,9 @@ class HmacAuth:
 
         content_hash = r.headers.get('content-hash')
         if not content_hash:
-            if r.body:
+            if isinstance(r.body, bytes):
+                content = r.body
+            elif r.body:
                 content = r.body.encode('utf-8')
             else:
                 content = b''
@@ -46,6 +48,8 @@ class HmacAuth:
         if not httpdate:
             httpdate = datetime.datetime.utcnow().isoformat()
             r.headers['Date'] = httpdate
+        else:
+            httpdate = httpdate.decode('utf-8')
 
         url = urlparse(r.url)
         path = url.path
